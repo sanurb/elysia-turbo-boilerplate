@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "elysia Docs": {
+            "url": "https://gitmcp.io/elysiajs/elysia"
+        },
+        "bun Docs": {
+            "url": "https://gitmcp.io/oven-sh/bun"
+        },
+        "turborepo Docs": {
+            "url": "https://gitmcp.io/vercel/turborepo"
+        }
+    }
+}
