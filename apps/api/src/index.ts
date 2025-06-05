@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { staticPlugin } from "@elysiajs/static";
@@ -7,6 +7,12 @@ import { helmet } from "elysia-helmet";
 import prometheusPlugin from "elysia-prometheus";
 import { styleText } from "node:util";
 import logger from 'logixlysia';
+import { env } from "@yolk-oss/elysia-env";
+
+const EnvSchema = t.Object({
+    DATABASE_URL: t.String({ minLength: 1, error: "DATABASE_URL is required!" }),
+    BETTER_AUTH_SECRET: t.String({ minLength: 1, error: "BETTER_AUTH_SECRET is required!" })
+});
 
 const app = new Elysia({
     name: 'api'
