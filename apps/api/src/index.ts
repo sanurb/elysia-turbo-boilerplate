@@ -8,6 +8,7 @@ import prometheusPlugin from "elysia-prometheus";
 import { styleText } from "node:util";
 import logger from 'logixlysia';
 import { env } from "@yolk-oss/elysia-env";
+import { auth, OpenAPI } from './auth';
 
 const EnvSchema = t.Object({
     DATABASE_URL: t.String({ minLength: 1, error: "DATABASE_URL is required!" }),
@@ -17,13 +18,21 @@ const EnvSchema = t.Object({
 const app = new Elysia({
     name: 'api'
 })
-    .use(cors())
-    .use(helmet())
+    .use(cors({
+        origin: '*', // Adjust as needed for your frontend
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization']
+    }))
+    // .use(helmet())
     .use(logger())
     .use(serverTiming())
     .use(swagger({
-        exclude: ['/swagger'],
         autoDarkMode: true,
+        documentation: {
+            components: await OpenAPI.components,
+            paths: await OpenAPI.getPaths(),
+        },
     }))
     .use(
         prometheusPlugin({
@@ -40,13 +49,14 @@ const app = new Elysia({
             prefix: ''
         })
     )
+    .mount('/auth', auth.handler) // Mount Better Auth endpoints at /auth for modularity and clarity
     .get('/', () => ({ message: 'Elysia API', version: '1.0.0' }))
     .get('/favicon.ico', () => new Response(null, { status: 204 }))
     .get("/health", () => ({ status: "ok" }))
-    .onError(({ code, error, request }) => {    
+    .onError(({ code, error, request }) => {
         // Don't log 404s for favicon or common browser requests
         if (code === 'NOT_FOUND' && (
-            request.url.includes('favicon.ico') || 
+            request.url.includes('favicon.ico') ||
             request.url.includes('.ico') ||
             request.url.includes('.png') ||
             request.url.includes('.svg') ||
@@ -54,7 +64,7 @@ const app = new Elysia({
         )) {
             return new Response(null, { status: 404 });
         }
-        
+
         console.error(`Error ${code} for ${request.method} ${request.url}:`, error);
 
         return {
@@ -69,12 +79,12 @@ const app = new Elysia({
     .all('*', ({ request }) => {
         console.log(`Unmatched route: ${request.method} ${request.url}`);
         return new Response(
-            JSON.stringify({ 
-                error: true, 
+            JSON.stringify({
+                error: true,
                 message: `Route not found: ${request.method} ${new URL(request.url).pathname}`,
                 code: 'NOT_FOUND'
-            }), 
-            { 
+            }),
+            {
                 status: 404,
                 headers: { 'Content-Type': 'application/json' }
             }
