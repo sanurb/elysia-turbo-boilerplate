@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { admin, openAPI, organization } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { db } from './db';
+import { db } from '../db';
 
 /**
  * Better Auth configuration with Drizzle ORM and organizations plugin.
@@ -30,7 +30,7 @@ export const auth = betterAuth({
         minPasswordLength: 8,
         maxPasswordLength: 128,
     },
-    // Add other Better Auth config as needed (social, 2FA, etc.)
+    // Add other Betterxx` Auth config as needed (social, 2FA, etc.)
 });
 
 let _schema: ReturnType<typeof auth.api.generateOpenAPISchema>;

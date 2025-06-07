@@ -3,17 +3,10 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { staticPlugin } from "@elysiajs/static";
 import serverTiming from "@elysiajs/server-timing";
-import { helmet } from "elysia-helmet";
 import prometheusPlugin from "elysia-prometheus";
 import { styleText } from "node:util";
 import logger from 'logixlysia';
-import { env } from "@yolk-oss/elysia-env";
-import { auth, OpenAPI } from './auth';
-
-const EnvSchema = t.Object({
-    DATABASE_URL: t.String({ minLength: 1, error: "DATABASE_URL is required!" }),
-    BETTER_AUTH_SECRET: t.String({ minLength: 1, error: "BETTER_AUTH_SECRET is required!" })
-});
+import { auth, OpenAPI } from './lib/auth';
 
 const app = new Elysia({
     name: 'api'
@@ -24,7 +17,6 @@ const app = new Elysia({
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization']
     }))
-    // .use(helmet())
     .use(logger())
     .use(serverTiming())
     .use(swagger({
