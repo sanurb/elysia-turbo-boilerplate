@@ -1,5 +1,6 @@
 import "dotenv/config"
 import { defineConfig } from "drizzle-kit"
+import type { Config } from 'drizzle-kit';
 
 export default defineConfig({
     out: "./drizzle",
@@ -10,4 +11,4 @@ export default defineConfig({
     },
     verbose: true,
     breakpoints: true,
-})
+} satisfies Config)

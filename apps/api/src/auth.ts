@@ -1,8 +1,7 @@
 import { betterAuth } from 'better-auth';
-import { openAPI, organization } from 'better-auth/plugins';
+import { admin, openAPI, organization } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from './db';
-import { users, organizations, sessions } from './db/schema';
 
 /**
  * Better Auth configuration with Drizzle ORM and organizations plugin.
@@ -16,12 +15,12 @@ export const auth = betterAuth({
         usePlural: true,
     }),
     basePath: '/api', // Clean API prefix for all Better Auth endpoints
-    // Enable organizations plugin
     plugins: [
         organization({
             // You can customize roles, permissions, and schema mapping here
             // See Better Auth docs for advanced options
         }),
+        admin(),
         openAPI()
     ],
     // Example: enable email/password auth (customize as needed)

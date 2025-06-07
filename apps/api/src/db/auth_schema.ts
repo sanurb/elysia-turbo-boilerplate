@@ -7,7 +7,11 @@ export const users = pgTable("users", {
     emailVerified: boolean('email_verified').$defaultFn(() => false).notNull(),
     image: text('image'),
     createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
-    updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull()
+    updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
+    role: text('role'),
+    banned: boolean('banned'),
+    banReason: text('ban_reason'),
+    banExpires: timestamp('ban_expires')
 });
 
 export const sessions = pgTable("sessions", {
@@ -19,7 +23,8 @@ export const sessions = pgTable("sessions", {
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    activeOrganizationId: text('active_organization_id')
+    activeOrganizationId: text('active_organization_id'),
+    impersonatedBy: text('impersonated_by')
 });
 
 export const accounts = pgTable("accounts", {
