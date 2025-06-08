@@ -1,10 +1,11 @@
 {
     "name": "api",
     "version": "1.0.50",
+    "type": "module",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "bun test",
         "dev": "bun run --watch src/index.ts",
-        "build": "bun build src/index.ts --outdir dist",
+        "build": "bun build --compile --minify --target bun --outfile server src/index.ts",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
         "db:push": "drizzle-kit push",

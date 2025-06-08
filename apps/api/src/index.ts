@@ -1,24 +1,20 @@
 import { Elysia, t } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { staticPlugin } from "@elysiajs/static";
-import serverTiming from "@elysiajs/server-timing";
 import prometheusPlugin from "elysia-prometheus";
 import { styleText } from "node:util";
-import logger from 'logixlysia';
-import { auth, OpenAPI } from './lib/auth';
+import { OpenAPI } from './lib/auth';
+import authController from "./controllers/auth.controller";
 
-const app = new Elysia({
-    name: 'api'
-})
+const app = new Elysia()
     .use(cors({
-        origin: '*', // Adjust as needed for your frontend
+        origin: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization']
     }))
-    .use(logger())
-    .use(serverTiming())
+    // .use(logger())
+    // .use(serverTiming())
     .use(swagger({
         autoDarkMode: true,
         documentation: {
@@ -36,15 +32,10 @@ const app = new Elysia({
             }
         })
     )
-    .use(
-        staticPlugin({
-            prefix: ''
-        })
-    )
-    .mount('/auth', auth.handler) // Mount Better Auth endpoints at /auth for modularity and clarity
     .get('/', () => ({ message: 'Elysia API', version: '1.0.0' }))
     .get('/favicon.ico', () => new Response(null, { status: 204 }))
-    .get("/health", () => ({ status: "ok" }))
+    .get("/health", () => "OK")
+    .use(authController)
     .onError(({ code, error, request }) => {
         // Don't log 404s for favicon or common browser requests
         if (code === 'NOT_FOUND' && (
@@ -68,22 +59,25 @@ const app = new Elysia({
     })
 
     // Catch-all route for unmatched paths
-    .all('*', ({ request }) => {
-        console.log(`Unmatched route: ${request.method} ${request.url}`);
-        return new Response(
-            JSON.stringify({
-                error: true,
-                message: `Route not found: ${request.method} ${new URL(request.url).pathname}`,
-                code: 'NOT_FOUND'
-            }),
-            {
-                status: 404,
-                headers: { 'Content-Type': 'application/json' }
-            }
-        );
-    })
+    // .all('*', ({ request }) => {
+    //     console.log(`Unmatched route: ${request.method} ${request.url}`);
+    //     return new Response(
+    //         JSON.stringify({
+    //             error: true,
+    //             message: `Route not found: ${request.method} ${new URL(request.url).pathname}`,
+    //             code: 'NOT_FOUND'
+    //         }),
+    //         {
+    //             status: 404,
+    //             headers: { 'Content-Type': 'application/json' }
+    //         }
+    //     );
+    // })
 
-    .listen(3001);
+    .listen({
+        hostname: '0.0.0.0',
+        port: 3000,
+    });
 
 console.log(
     styleText('green', `\nServer is running\n`),
@@ -94,3 +88,8 @@ console.log(
     styleText('green', 'Metrics: '),
     styleText('cyan', `http://${app.server?.hostname}:${app.server?.port}/metrics\n`)
 );
+
+export default app;
+
+/** This export is used with '@elysiajs/eden'. */
+export type App = typeof app;
